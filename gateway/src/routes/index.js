@@ -35,8 +35,7 @@ function buildProxy(target) {
     // POST /register instead of POST /api/auth/register — upstream returns 404.
     pathRewrite: (path, req) => {
       const full = req.originalUrl || path;
-      const q = full.indexOf('?');
-      return q === -1 ? full : full.slice(0, q);
+      return full;
     },
     onError(err, req, res) {
       res.status(502).json({

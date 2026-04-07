@@ -25,7 +25,12 @@ export default function TransactionsPage() {
   async function load() {
     try {
       setLoading(true);
-      const [cats, tx] = await Promise.all([api.getCategories(token), api.getTransactions(token, filters)]);
+      const apiFilters = {
+        month: filters.month,
+        type: filters.type,
+        categoryId: filters.categoryId
+      };
+      const [cats, tx] = await Promise.all([api.getCategories(token), api.getTransactions(token, apiFilters)]);
       setCategories(cats);
       setResult(tx);
     } catch (error) {
