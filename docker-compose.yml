@@ -1,0 +1,125 @@
+# Docker Compose — Multi-container orchestration
+# Run: docker compose up --build
+# Docs: https://docs.docker.com/compose/
+
+services:
+  # ─── MySQL (persisted) ───────────────────────────
+  mysql:
+    image: mysql:8.0
+    command: --default-authentication-plugin=mysql_native_password --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+    ports:
+      - "${MYSQL_PUBLISH_PORT:-3306}:3306"
+    environment:
+      # Use MYSQL_APP_* (not DB_USER): on Windows a global DB_USER=root often overrides .env and breaks MySQL.
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-root_password}
+      MYSQL_DATABASE: ${FINANCE_DB_NAME:-finance_db}
+      MYSQL_USER: ${MYSQL_APP_USER:-finance_user}
+      MYSQL_PASSWORD: ${MYSQL_APP_PASSWORD:-finance_password}
+    volumes:
+      - mysql-data:/var/lib/mysql
+      - ./docker/mysql/init.sql:/docker-entrypoint-initdb.d/01-init.sql:ro
+    healthcheck:
+      test: ['CMD-SHELL', 'mysqladmin ping -h 127.0.0.1 -uroot -p$$MYSQL_ROOT_PASSWORD || exit 1']
+      interval: 5s
+      timeout: 5s
+      retries: 18
+      start_period: 30s
+    networks:
+      - app-network
+
+  # ─── Frontend ────────────────────────────────────
+  frontend:
+    build: ./frontend
+    ports:
+      - "${FRONTEND_PORT:-3000}:3000"
+    depends_on:
+      - gateway
+    networks:
+      - app-network
+
+  # ─── API Gateway ─────────────────────────────────
+  gateway:
+    build: ./gateway
+    ports:
+      - "${GATEWAY_PORT:-8080}:8000"
+    depends_on:
+      - service-auth-user
+      - service-transaction-budget
+      - service-report-notification
+    environment:
+      PORT: 8000
+      PROXY_TIMEOUT_MS: ${PROXY_TIMEOUT_MS:-8000}
+      AUTH_USER_SERVICE_URL: http://service-auth-user:5000
+      TRANSACTION_BUDGET_SERVICE_URL: http://service-transaction-budget:5000
+      REPORT_NOTIFICATION_SERVICE_URL: http://service-report-notification:5000
+    networks:
+      - app-network
+
+  # ─── service-auth-user ───────────────────────────
+  service-auth-user:
+    build: ./services/service-auth-user
+    ports:
+      - "${SERVICE_AUTH_USER_PORT:-15001}:5000"
+    depends_on:
+      mysql:
+        condition: service_healthy
+    environment:
+      PORT: 5000
+      JWT_SECRET: ${JWT_SECRET:-my-super-secret-key-123}
+      JWT_EXPIRES_IN: ${JWT_EXPIRES_IN:-1d}
+      DB_HOST: mysql
+      DB_PORT: 3306
+      DB_USER: ${MYSQL_APP_USER:-finance_user}
+      DB_PASSWORD: ${MYSQL_APP_PASSWORD:-finance_password}
+      DB_NAME: ${AUTH_DB_NAME:-auth_user_db}
+    networks:
+      - app-network
+
+  # ─── service-transaction-budget ──────────────────
+  service-transaction-budget:
+    build: ./services/service-transaction-budget
+    ports:
+      - "${SERVICE_TRANSACTION_BUDGET_PORT:-15002}:5000"
+    depends_on:
+      mysql:
+        condition: service_healthy
+    environment:
+      PORT: 5000
+      JWT_SECRET: ${JWT_SECRET:-dev-secret-change-me}
+      DB_HOST: mysql
+      DB_PORT: 3306
+      DB_USER: ${MYSQL_APP_USER:-finance_user}
+      DB_PASSWORD: ${MYSQL_APP_PASSWORD:-finance_password}
+      DB_NAME: ${FINANCE_DB_NAME:-finance_db}
+    networks:
+      - app-network
+
+  # ─── service-report-notification ─────────────────
+  service-report-notification:
+    build: ./services/service-report-notification
+    ports:
+      - "${SERVICE_REPORT_NOTIFICATION_PORT:-15003}:5000"
+    depends_on:
+      mysql:
+        condition: service_healthy
+      service-transaction-budget:
+        condition: service_started
+    environment:
+      PORT: 5000
+      JWT_SECRET: ${JWT_SECRET:-dev-secret-change-me}
+      TRANSACTION_BUDGET_SERVICE_URL: http://service-transaction-budget:5000
+      USE_MOCK_ADAPTER: ${USE_MOCK_ADAPTER:-false}
+      DB_HOST: mysql
+      DB_PORT: 3306
+      DB_USER: ${MYSQL_APP_USER:-finance_user}
+      DB_PASSWORD: ${MYSQL_APP_PASSWORD:-finance_password}
+      DB_NAME: ${REPORT_DB_NAME:-report_db}
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge
+
+volumes:
+  mysql-data:

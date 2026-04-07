@@ -1,0 +1,139 @@
+﻿openapi: 3.0.3
+info:
+  title: service-transaction-budget API
+  version: 1.0.0
+servers:
+  - url: http://localhost:5002
+paths:
+  /health:
+    get:
+      summary: Health check
+      responses:
+        '200': { description: OK }
+  /transactions:
+    get:
+      summary: List transactions with filters
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - in: query
+          name: month
+          schema: { type: string, example: '2025-09' }
+        - in: query
+          name: type
+          schema: { type: string, enum: [income, expense] }
+        - in: query
+          name: categoryId
+          schema: { type: string }
+      responses:
+        '200': { description: Success }
+    post:
+      summary: Create transaction
+      security: [{ bearerAuth: [] }]
+      responses:
+        '201': { description: Created }
+  /transactions/{id}:
+    get:
+      summary: Get transaction by id
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      responses:
+        '200': { description: Success }
+        '404': { description: Not found }
+    put:
+      summary: Update transaction
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      responses:
+        '200': { description: Success }
+        '404': { description: Not found }
+    delete:
+      summary: Delete transaction
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      responses:
+        '204': { description: Deleted }
+        '404': { description: Not found }
+  /categories:
+    get:
+      summary: List categories
+      security: [{ bearerAuth: [] }]
+      responses:
+        '200': { description: Success }
+    post:
+      summary: Create category
+      security: [{ bearerAuth: [] }]
+      responses:
+        '201': { description: Created }
+  /budgets:
+    get:
+      summary: List budgets
+      security: [{ bearerAuth: [] }]
+      responses:
+        '200': { description: Success }
+    post:
+      summary: Create budget
+      security: [{ bearerAuth: [] }]
+      responses:
+        '201': { description: Created }
+  /budgets/current:
+    get:
+      summary: Get budgets by month
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - in: query
+          name: month
+          required: true
+          schema: { type: string, example: '2025-09' }
+      responses:
+        '200': { description: Success }
+  /budgets/{id}:
+    put:
+      summary: Update budget
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      responses:
+        '200': { description: Success }
+  /internal/summary:
+    get:
+      summary: Internal monthly summary for report service
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - in: query
+          name: month
+          required: true
+          schema: { type: string, example: '2025-09' }
+      responses:
+        '200': { description: Success }
+  /internal/category-breakdown:
+    get:
+      summary: Internal category breakdown for report service
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - in: query
+          name: month
+          required: true
+          schema: { type: string, example: '2025-09' }
+      responses:
+        '200': { description: Success }
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT

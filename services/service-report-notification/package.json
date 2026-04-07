@@ -1,0 +1,16 @@
+﻿{
+  "name": "service-report-notification",
+  "version": "1.0.0",
+  "private": true,
+  "main": "src/server.js",
+  "scripts": {"start": "node src/server.js"},
+  "dependencies": {
+    "axios": "^1.7.7",
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
+    "joi": "^17.13.3",
+    "jsonwebtoken": "^9.0.2",
+    "morgan": "^1.10.0",
+    "mysql2": "^3.11.0"
+  }
+}
