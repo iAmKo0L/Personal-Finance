@@ -6,11 +6,11 @@ Hệ thống theo luồng:
 
 ```mermaid
 graph LR
-    U[User] --> FE[Frontend :3000]
-    FE --> GW[API Gateway :8080]
-    GW --> AU[service-auth-user (container :5000, host :15001)]
-    GW --> TB[service-transaction-budget (container :5000, host :15002)]
-    GW --> RN[service-report-notification (container :5000, host :15003)]
+    U[User] --> FE["Frontend<br/>:3000"]
+    FE --> GW["API Gateway<br/>:8080"]
+    GW --> AU["service-auth-user<br/>container: 5000<br/>host: 15001"]
+    GW --> TB["service-transaction-budget<br/>container: 5000<br/>host: 15002"]
+    GW --> RN["service-report-notification<br/>container: 5000<br/>host: 15003"]
 ```
 
 - Frontend chỉ gọi gateway, không gọi trực tiếp từng service.
