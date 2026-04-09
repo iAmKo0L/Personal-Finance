@@ -46,7 +46,7 @@ graph LR
 - Dễ thay đổi/mở rộng backend mà frontend ít bị ảnh hưởng.
 
 ## 5. Vì sao chọn Database per Service
-Dự án triển khai với **MySQL thật** và vẫn theo hướng **DB per Service**:
+Dự án triển khai với **MySQL** và vẫn theo hướng **DB per Service**:
 - Mỗi service sở hữu dữ liệu và logic riêng.
 - Giảm phụ thuộc trực tiếp giữa các service.
 - Dễ scale/đổi công nghệ DB cho từng service sau này.
