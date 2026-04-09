@@ -40,7 +40,7 @@ npm run dev
 - `VITE_API_BASE_URL=http://localhost:8080`
   - Base URL của Gateway
 
-## Frontend gọi Gateway như thế nào
+## Frontend gọi Gateway
 - Auth: `POST /api/auth/login`, `POST /api/auth/register`
 - User settings/profile: `GET/PUT /api/users/me`, `PUT /api/users/settings` (gateway cũng hỗ trợ alias `/api/auth/users/*`)
 - Finance:
@@ -62,6 +62,3 @@ npm run dev
 - Data display: `StatCard`, `ChartCard`, `AlertBanner`, `EmptyState`, `LoadingSpinner`
 - Transactions: `TransactionTable`, `TransactionForm`
 - Budgets: `BudgetCard`, `BudgetForm`, `BudgetProgress`
-
-## Ghi chú
-- Các page cũ (Dashboard/Transactions/Budgets/Reports/Profile) được thu gọn về 1 page: `FinanceOverviewPage` để demo use case mượt và rõ nghiệp vụ.
