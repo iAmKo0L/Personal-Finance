@@ -1,8 +1,7 @@
-﻿function createUserSettingsEntity({ userId, defaultCurrency = 'USD', monthlySpendingLimit = 0 }) {
+﻿function createUserSettingsEntity({ userId, defaultCurrency = 'VND' }) {
   return {
     userId,
-    defaultCurrency,
-    monthlySpendingLimit
+    defaultCurrency
   };
 }
 

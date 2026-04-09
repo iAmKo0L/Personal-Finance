@@ -8,7 +8,11 @@ const {
 } = require('../validations/finance-validation');
 
 function validate(schema, payload) {
-  const { error, value } = schema.validate(payload, { abortEarly: false });
+  const { error, value } = schema.validate(payload, {
+    abortEarly: false,
+    convert: true,
+    stripUnknown: true
+  });
   if (error) {
     error.status = 400;
     error.details = error.details.map((detail) => detail.message);
@@ -27,6 +31,26 @@ async function listTransactions(req, res, next) {
   }
 }
 
+async function transactionsSummary(req, res, next) {
+  try {
+    const query = validate(monthQuerySchema, req.query);
+    const result = await financeService.getTransactionsSummary(req.user.sub, query.month);
+    res.json(result);
+  } catch (error) {
+    next(error);
+  }
+}
+
+async function transactionsChart(req, res, next) {
+  try {
+    const query = validate(monthQuerySchema, req.query);
+    const result = await financeService.getTransactionsChart(req.user.sub, query.month);
+    res.json(result);
+  } catch (error) {
+    next(error);
+  }
+}
+
 async function getTransaction(req, res, next) {
   try {
     const result = await financeService.getTransactionById(req.user.sub, req.params.id);
@@ -39,7 +63,8 @@ async function getTransaction(req, res, next) {
 async function createTransaction(req, res, next) {
   try {
     const payload = validate(transactionSchema, req.body);
-    const result = await financeService.createTransaction(req.user.sub, payload);
+    // For smooth demo: return transaction + summary + budget status + alerts in one response.
+    const result = await financeService.createTransactionWithImpact(req.user.sub, payload);
     res.status(201).json(result);
   } catch (error) {
     next(error);
@@ -106,7 +131,8 @@ async function createBudget(req, res, next) {
 async function getCurrentBudgets(req, res, next) {
   try {
     const query = validate(monthQuerySchema, req.query);
-    const result = await financeService.getCurrentBudgets(req.user.sub, query.month);
+    // Refactored for use-case: return a single budget status object for the month.
+    const result = await financeService.getBudgetStatus(req.user.sub, query.month);
     res.json(result);
   } catch (error) {
     next(error);
@@ -118,6 +144,15 @@ async function updateBudget(req, res, next) {
     const payload = validate(budgetSchema, req.body);
     const result = await financeService.updateBudget(req.user.sub, req.params.id, payload);
     res.json(result);
+  } catch (error) {
+    next(error);
+  }
+}
+
+async function removeBudget(req, res, next) {
+  try {
+    await financeService.deleteBudget(req.user.sub, req.params.id);
+    res.status(204).send();
   } catch (error) {
     next(error);
   }
@@ -165,6 +200,8 @@ async function internalAlerts(req, res, next) {
 
 module.exports = {
   listTransactions,
+  transactionsSummary,
+  transactionsChart,
   getTransaction,
   createTransaction,
   updateTransaction,
@@ -175,6 +212,7 @@ module.exports = {
   createBudget,
   getCurrentBudgets,
   updateBudget,
+  removeBudget,
   internalSummary,
   internalCategoryBreakdown,
   internalMonthlyAnalytics,

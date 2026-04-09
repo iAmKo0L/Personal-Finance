@@ -3,7 +3,7 @@ info:
   title: service-transaction-budget API
   version: 1.0.0
 servers:
-  - url: http://localhost:5002
+  - url: http://localhost:15002
 paths:
   /health:
     get:
@@ -31,6 +31,28 @@ paths:
       security: [{ bearerAuth: [] }]
       responses:
         '201': { description: Created }
+  /transactions/summary:
+    get:
+      summary: Monthly transaction summary
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - in: query
+          name: month
+          required: true
+          schema: { type: string, example: '2025-09' }
+      responses:
+        '200': { description: Success }
+  /transactions/chart:
+    get:
+      summary: Monthly chart data
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - in: query
+          name: month
+          required: true
+          schema: { type: string, example: '2025-09' }
+      responses:
+        '200': { description: Success }
   /transactions/{id}:
     get:
       summary: Get transaction by id
@@ -109,6 +131,17 @@ paths:
           schema: { type: string }
       responses:
         '200': { description: Success }
+    delete:
+      summary: Delete budget
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      responses:
+        '204': { description: Deleted }
+        '404': { description: Not found }
   /internal/summary:
     get:
       summary: Internal monthly summary for report service
@@ -123,6 +156,17 @@ paths:
   /internal/category-breakdown:
     get:
       summary: Internal category breakdown for report service
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - in: query
+          name: month
+          required: true
+          schema: { type: string, example: '2025-09' }
+      responses:
+        '200': { description: Success }
+  /internal/alerts:
+    get:
+      summary: Internal budget alerts data for report service
       security: [{ bearerAuth: [] }]
       parameters:
         - in: query

@@ -14,8 +14,7 @@ function toPublicUser(user, settings) {
     updatedAt: user.updatedAt,
     settings: {
       userId: settings.userId,
-      defaultCurrency: settings.defaultCurrency,
-      monthlySpendingLimit: settings.monthlySpendingLimit
+      defaultCurrency: settings.defaultCurrency
     }
   };
 }
@@ -103,14 +102,10 @@ async function updateUserSettings(userId, payload) {
     throw new HttpError(404, 'User not found');
   }
 
-  const currency = String(payload.defaultCurrency || 'USD').trim().toUpperCase().slice(0, 10);
-  const rawLimit = Number(payload.monthlySpendingLimit);
-  const monthlySpendingLimit =
-    Number.isFinite(rawLimit) && rawLimit >= 0 ? rawLimit : 0;
+  const currency = String(payload.defaultCurrency || 'VND').trim().toUpperCase().slice(0, 10);
 
   const settings = await userRepository.upsertSettings(userId, {
-    defaultCurrency: currency || 'USD',
-    monthlySpendingLimit
+    defaultCurrency: currency || 'VND'
   });
 
   return toPublicUser(user, settings);

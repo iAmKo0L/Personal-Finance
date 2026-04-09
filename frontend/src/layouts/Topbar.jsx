@@ -2,11 +2,7 @@
 import { useLocation } from 'react-router-dom';
 
 const pageMeta = {
-  '/dashboard': { title: 'Dashboard', subtitle: 'Overview of your finance status' },
-  '/transactions': { title: 'Transactions', subtitle: 'Track and manage income and expenses' },
-  '/budgets': { title: 'Budgets', subtitle: 'Control monthly spending limits' },
-  '/reports': { title: 'Reports', subtitle: 'Visual insights for monthly performance' },
-  '/profile': { title: 'Profile & Settings', subtitle: 'Manage personal info and preferences' }
+  '/': { title: 'Tổng quan', subtitle: 'Ghi nhận giao dịch và xem tác động ngay lập tức' }
 };
 
 export default function Topbar() {

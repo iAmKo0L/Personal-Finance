@@ -1,4 +1,4 @@
-﻿export function formatCurrency(value, currency = 'USD') {
+﻿export function formatCurrency(value, currency = 'VND') {
   return new Intl.NumberFormat('en-US', {
     style: 'currency',
     currency,

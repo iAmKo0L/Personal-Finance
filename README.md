@@ -34,16 +34,22 @@ docker-compose.yml
 - Auth/User:
   - `POST /api/auth/register`
   - `POST /api/auth/login`
-- Finance:
-  - `GET/POST /api/finance/transactions`
-  - `GET /api/finance/categories`
-  - `GET/POST /api/finance/budgets`
+- User:
+  - `GET /api/users/me`
+  - `PUT /api/users/me`
+  - `PUT /api/users/settings`
+- Finance (use case chính):
+  - `POST /api/finance/transactions`
+  - `GET /api/finance/transactions?month=YYYY-MM`
+  - `GET /api/finance/transactions/summary?month=YYYY-MM`
+  - `GET /api/finance/transactions/chart?month=YYYY-MM`
+  - `GET /api/finance/budgets/current?month=YYYY-MM`
+  - `GET /api/finance/budgets`
+  - `POST /api/finance/budgets`
+  - `PUT /api/finance/budgets/:id`
+  - `DELETE /api/finance/budgets/:id`
 - Reports/Notifications:
-  - `GET /api/reports/monthly-summary?month=YYYY-MM`
-  - `GET /api/reports/category-breakdown?month=YYYY-MM`
-  - `GET /api/reports/cashflow?month=YYYY-MM`
-  - `GET /api/reports/alerts`
-  - `POST /api/reports/check-budget-alerts?month=YYYY-MM`
+  - `GET /api/reports/notifications/budget-alerts?month=YYYY-MM`
 
 ## Hướng dẫn chạy chi tiết
 
@@ -112,7 +118,7 @@ curl http://localhost:15003/health
 ### 5) Đăng ký / đăng nhập
 - Mở UI: `http://localhost:3000/register` để tạo tài khoản
 - Đăng nhập tại `http://localhost:3000/login`
-- Sau khi đăng nhập, vào Dashboard và các trang Transactions/Budgets/Reports/Profile
+- Sau khi đăng nhập, bạn sẽ vào **một màn hình duy nhất** để ghi nhận giao dịch và xem tác động lên thống kê/ngân sách.
 
 ### 6) Lệnh quản lý thường dùng
 Dừng hệ thống:

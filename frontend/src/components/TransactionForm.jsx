@@ -11,13 +11,7 @@ export default function TransactionForm({ categories, initial, onSubmit, onCance
     if (!form.amount || Number(form.amount) <= 0) return setError('Amount must be greater than 0');
     if (!form.categoryId) return setError('Please select category');
     setError('');
-    onSubmit({
-      type: form.type,
-      amount: Number(form.amount),
-      categoryId: String(form.categoryId),
-      note: form.note || '',
-      transactionDate: `${form.transactionDate.slice(0, 10)}T00:00:00.000Z`
-    });
+    onSubmit({ ...form, amount: Number(form.amount), transactionDate: `${form.transactionDate}T00:00:00.000Z` });
   };
 
   return (

@@ -1,6 +1,6 @@
 ﻿import { formatCurrency } from '../utils/format';
 
-export default function TransactionTable({ rows, categories, currency = 'USD', onEdit, onDelete }) {
+export default function TransactionTable({ rows, categories, currency = 'VND', onEdit, onDelete }) {
   const categoryName = (id) => categories.find((c) => c.id === id)?.name || 'Unknown';
 
   return (

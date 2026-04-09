@@ -31,12 +31,6 @@ function buildProxy(target) {
     xfwd: true,
     proxyTimeout: config.proxyTimeoutMs,
     timeout: config.proxyTimeoutMs,
-    // Express strips the mount path (/api/auth) from req.url, so the proxy would forward
-    // POST /register instead of POST /api/auth/register — upstream returns 404.
-    pathRewrite: (path, req) => {
-      const full = req.originalUrl || path;
-      return full;
-    },
     onError(err, req, res) {
       res.status(502).json({
         message: 'Bad gateway',

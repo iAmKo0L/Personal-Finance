@@ -84,10 +84,19 @@ async function updateByIdAndUserId(id, userId, updates) {
   return findByIdAndUserId(id, userId);
 }
 
+async function deleteByIdAndUserId(id, userId) {
+  const existing = await findByIdAndUserId(id, userId);
+  if (!existing) return false;
+
+  await pool.query('DELETE FROM budgets WHERE id = ? AND user_id = ?', [id, Number(userId)]);
+  return true;
+}
+
 module.exports = {
   create,
   findByUserId,
   findByIdAndUserId,
   findCurrentByMonth,
-  updateByIdAndUserId
+  updateByIdAndUserId,
+  deleteByIdAndUserId
 };

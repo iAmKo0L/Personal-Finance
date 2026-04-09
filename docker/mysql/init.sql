@@ -18,8 +18,7 @@ CREATE TABLE IF NOT EXISTS users (
 
 CREATE TABLE IF NOT EXISTS user_settings (
   user_id BIGINT UNSIGNED NOT NULL,
-  default_currency VARCHAR(10) NOT NULL DEFAULT 'USD',
-  monthly_spending_limit DECIMAL(14, 2) NOT NULL DEFAULT 0,
+  default_currency VARCHAR(10) NOT NULL DEFAULT 'VND',
   PRIMARY KEY (user_id),
   CONSTRAINT fk_user_settings_user FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

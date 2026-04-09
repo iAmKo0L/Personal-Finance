@@ -1,6 +1,6 @@
 ﻿# service-report-notification
 
-Service phụ trách báo cáo dashboard và cảnh báo ngân sách.
+Service phụ trách API báo cáo và cảnh báo ngân sách.
 
 ## Chạy độc lập
 ```bash
@@ -95,6 +95,9 @@ Phản hồi:
 }
 ```
 
+## Cảnh báo ngân sách (use case gọn)
+- `GET /notifications/budget-alerts?month=YYYY-MM`
+- Trả về danh sách cảnh báo dạng `safe | warning | critical` dựa trên dữ liệu budget/transactions hiện tại.
+
 ## Ghi chú
 - Service gọi `service-transaction-budget` qua lớp HTTP client abstraction.
-- Đặt `USE_MOCK_ADAPTER=true` để demo khi chưa phụ thuộc service thật.

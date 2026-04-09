@@ -1,12 +1,6 @@
 ﻿import { NavLink } from 'react-router-dom';
 
-const items = [
-  { to: '/dashboard', label: 'Dashboard' },
-  { to: '/transactions', label: 'Transactions' },
-  { to: '/budgets', label: 'Budgets' },
-  { to: '/reports', label: 'Reports' },
-  { to: '/profile', label: 'Profile/Settings' }
-];
+const items = [{ to: '/', label: 'Tổng quan' }];
 
 export default function Sidebar() {
   return (

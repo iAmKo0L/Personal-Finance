@@ -43,8 +43,7 @@ Phản hồi 201:
     "updatedAt": "2026-04-07T00:00:00.000Z",
     "settings": {
       "userId": "1",
-      "defaultCurrency": "USD",
-      "monthlySpendingLimit": 0
+      "defaultCurrency": "VND"
     }
   }
 }
@@ -73,8 +72,7 @@ Phản hồi 200:
     "updatedAt": "2026-04-07T00:00:00.000Z",
     "settings": {
       "userId": "1",
-      "defaultCurrency": "USD",
-      "monthlySpendingLimit": 0
+      "defaultCurrency": "VND"
     }
   }
 }
@@ -94,8 +92,7 @@ Phản hồi 200:
   "updatedAt": "2026-04-07T00:00:00.000Z",
   "settings": {
     "userId": "1",
-    "defaultCurrency": "USD",
-    "monthlySpendingLimit": 0
+    "defaultCurrency": "VND"
   }
 }
 ```
@@ -118,8 +115,7 @@ Phản hồi 200: cùng cấu trúc với `/users/me`.
 Yêu cầu:
 ```json
 {
-  "defaultCurrency": "VND",
-  "monthlySpendingLimit": 15000000
+  "defaultCurrency": "VND"
 }
 ```
 

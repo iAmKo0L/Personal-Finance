@@ -3,7 +3,7 @@ info:
   title: service-report-notification API
   version: 1.0.0
 servers:
-  - url: http://localhost:5003
+  - url: http://localhost:15003
 paths:
   /health:
     get:
@@ -52,6 +52,17 @@ paths:
   /notifications/check-budget-alerts:
     post:
       summary: Generate notifications from budget alerts
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - in: query
+          name: month
+          required: true
+          schema: { type: string, example: '2025-09' }
+      responses:
+        '200': { description: Success }
+  /notifications/budget-alerts:
+    get:
+      summary: Get budget alerts for a month
       security: [{ bearerAuth: [] }]
       parameters:
         - in: query

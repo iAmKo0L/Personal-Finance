@@ -22,8 +22,7 @@ function mapSettings(row) {
   if (!row) return null;
   return {
     userId: String(row.user_id),
-    defaultCurrency: row.default_currency,
-    monthlySpendingLimit: Number(row.monthly_spending_limit)
+    defaultCurrency: row.default_currency
   };
 }
 
@@ -74,19 +73,14 @@ async function updateUser(id, updates) {
 }
 
 async function upsertSettings(userId, updates) {
-  const currency = updates.defaultCurrency ?? 'USD';
-  const limit =
-    updates.monthlySpendingLimit !== undefined && updates.monthlySpendingLimit !== null
-      ? updates.monthlySpendingLimit
-      : 0;
+  const currency = updates.defaultCurrency ?? 'VND';
 
   await pool.query(
-    `INSERT INTO user_settings (user_id, default_currency, monthly_spending_limit)
-     VALUES (?, ?, ?)
+    `INSERT INTO user_settings (user_id, default_currency)
+     VALUES (?, ?)
      ON DUPLICATE KEY UPDATE
-       default_currency = VALUES(default_currency),
-       monthly_spending_limit = VALUES(monthly_spending_limit)`,
-    [userId, currency, limit]
+      default_currency = VALUES(default_currency)`,
+    [userId, currency]
   );
 
   return findSettingsByUserId(userId);

@@ -49,7 +49,13 @@ Yêu cầu:
   "transactionDate": "2025-09-05T09:00:00.000Z"
 }
 ```
-Phản hồi 201: đối tượng transaction.
+Phản hồi 201: gói dữ liệu để frontend cập nhật nhanh (transaction + summary + budgetStatus + alerts).
+
+### Thống kê theo tháng (use case)
+- `GET /transactions/summary?month=YYYY-MM`
+
+### Dữ liệu biểu đồ theo tháng (use case)
+- `GET /transactions/chart?month=YYYY-MM`
 
 ### Lấy danh sách giao dịch có lọc
 - `GET /transactions?month=2025-09&type=expense&categoryId=3`
@@ -115,6 +121,7 @@ Phản hồi 200: mảng ngân sách.
 
 ### Lấy ngân sách theo tháng hiện tại
 - `GET /budgets/current?month=2025-09`
+Phản hồi 200: trả về budget status (monthlyBudget, spentAmount, usagePercent, remainingAmount).
 
 ### Cập nhật ngân sách
 - `PUT /budgets/:id`
@@ -128,6 +135,10 @@ Yêu cầu:
 }
 ```
 Phản hồi 200: đối tượng budget sau cập nhật.
+
+### Xóa ngân sách
+- `DELETE /budgets/:id`
+Phản hồi 204: không có nội dung.
 
 ### Endpoint nội bộ: summary cho report service
 - `GET /internal/summary?month=2025-09`

@@ -5,6 +5,18 @@ export const financeApi = {
     return request('/api/finance/transactions', { params: filters, token });
   },
 
+  getTransactionsSummary(month, token) {
+    return request('/api/finance/transactions/summary', { params: { month }, token });
+  },
+
+  getTransactionsChart(month, token) {
+    return request('/api/finance/transactions/chart', { params: { month }, token });
+  },
+
+  getBudgetStatus(month, token) {
+    return request('/api/finance/budgets/current', { params: { month }, token });
+  },
+
   createTransaction(payload, token) {
     return request('/api/finance/transactions', { method: 'POST', body: payload, token });
   },
@@ -31,5 +43,9 @@ export const financeApi = {
 
   updateBudget(id, payload, token) {
     return request(`/api/finance/budgets/${id}`, { method: 'PUT', body: payload, token });
+  },
+
+  deleteBudget(id, token) {
+    return request(`/api/finance/budgets/${id}`, { method: 'DELETE', token });
   }
 };

@@ -7,6 +7,10 @@ function monthFromIso(value) {
   return String(value).slice(0, 7);
 }
 
+function dayFromIso(value) {
+  return String(value).slice(0, 10);
+}
+
 function normalizeCategoryId(value) {
   if (!value) return null;
   return value;
@@ -39,6 +43,87 @@ function buildTotals(items) {
   return { totalIncome, totalExpense, balance: totalIncome - totalExpense };
 }
 
+async function getTransactionsSummary(userId, month) {
+  ensureMonth(month);
+  const items = applyTransactionFilters(await transactionRepository.findByUserId(userId), { month });
+  const totals = buildTotals(items);
+  return {
+    month,
+    ...totals,
+    transactionCount: items.length
+  };
+}
+
+async function getTransactionsChart(userId, month) {
+  ensureMonth(month);
+
+  const breakdown = await internalCategoryBreakdown(userId, month);
+  const expenseByCategory = (breakdown.data || [])
+    .filter((x) => x.expense > 0)
+    .map((x) => ({
+      categoryId: x.categoryId,
+      categoryName: x.categoryName,
+      amount: x.expense
+    }));
+
+  const tx = applyTransactionFilters(await transactionRepository.findByUserId(userId), { month });
+  const byDay = {};
+  tx.forEach((t) => {
+    const d = dayFromIso(t.transactionDate);
+    if (!byDay[d]) byDay[d] = { date: d, income: 0, expense: 0, net: 0 };
+    if (t.type === 'income') byDay[d].income += t.amount;
+    if (t.type === 'expense') byDay[d].expense += t.amount;
+    byDay[d].net = byDay[d].income - byDay[d].expense;
+  });
+
+  const incomeVsExpenseByDay = Object.values(byDay).sort((a, b) => (a.date < b.date ? -1 : 1));
+  const summary = await getTransactionsSummary(userId, month);
+
+  return {
+    month,
+    summary,
+    expenseByCategory,
+    incomeVsExpenseByDay
+  };
+}
+
+async function getBudgetStatus(userId, month) {
+  ensureMonth(month);
+  const monthBudgets = await budgetRepository.findCurrentByMonth(userId, month);
+
+  const totalBudgetRow = monthBudgets.find((b) => !b.categoryId);
+  const monthlyBudget = totalBudgetRow
+    ? totalBudgetRow.limitAmount
+    : monthBudgets.reduce((sum, b) => sum + (b.limitAmount || 0), 0);
+
+  const monthTx = applyTransactionFilters(await transactionRepository.findByUserId(userId), { month });
+  const spentAmount = monthTx.filter((t) => t.type === 'expense').reduce((sum, t) => sum + t.amount, 0);
+
+  const usagePercent = monthlyBudget > 0 ? Number(((spentAmount / monthlyBudget) * 100).toFixed(2)) : 0;
+  const remainingAmount = Number((monthlyBudget - spentAmount).toFixed(2));
+
+  return {
+    month,
+    monthlyBudget,
+    spentAmount,
+    usagePercent,
+    remainingAmount
+  };
+}
+
+function buildBudgetAlerts(budgetStatus) {
+  if (!budgetStatus || !budgetStatus.monthlyBudget) {
+    return [{ type: 'info', message: 'Bạn chưa đặt ngân sách tháng này.' }];
+  }
+  if (budgetStatus.usagePercent >= 100) {
+    return [{ type: 'critical', message: `Bạn đã vượt ngân sách tháng này (${budgetStatus.usagePercent}%).` }];
+  }
+  if (budgetStatus.usagePercent >= 80) {
+    return [{ type: 'warning', message: `Bạn đã dùng ${budgetStatus.usagePercent}% ngân sách tháng này.` }];
+  }
+  return [{ type: 'safe', message: 'Ngân sách đang trong mức an toàn.' }];
+}
+
 async function listTransactions(userId, query) {
   const items = await transactionRepository.findByUserId(userId);
   const filtered = applyTransactionFilters(items, query);
@@ -58,6 +143,22 @@ async function getTransactionById(userId, id) {
 async function createTransaction(userId, payload) {
   await ensureCategoryOwnedOrDefault(payload.categoryId, userId);
   return transactionRepository.create({ ...payload, userId });
+}
+
+async function createTransactionWithImpact(userId, payload) {
+  const transaction = await createTransaction(userId, payload);
+  const month = monthFromIso(transaction.transactionDate);
+  const summary = await getTransactionsSummary(userId, month);
+  const budgetStatus = await getBudgetStatus(userId, month);
+  const alerts = buildBudgetAlerts(budgetStatus);
+
+  return {
+    message: 'Transaction created successfully',
+    transaction,
+    summary,
+    budgetStatus,
+    alerts
+  };
 }
 
 async function updateTransaction(userId, id, payload) {
@@ -115,6 +216,11 @@ async function updateBudget(userId, id, payload) {
   });
   if (!updated) throw new HttpError(404, 'Budget not found');
   return updated;
+}
+
+async function deleteBudget(userId, id) {
+  const deleted = await budgetRepository.deleteByIdAndUserId(id, userId);
+  if (!deleted) throw new HttpError(404, 'Budget not found');
 }
 
 async function internalSummary(userId, month) {
@@ -199,8 +305,12 @@ async function internalAlerts(userId, month) {
 
 module.exports = {
   listTransactions,
+  getTransactionsSummary,
+  getTransactionsChart,
+  getBudgetStatus,
   getTransactionById,
   createTransaction,
+  createTransactionWithImpact,
   updateTransaction,
   deleteTransaction,
   listCategories,
@@ -209,6 +319,7 @@ module.exports = {
   listBudgets,
   getCurrentBudgets,
   updateBudget,
+  deleteBudget,
   internalSummary,
   internalCategoryBreakdown,
   internalMonthlyAnalytics,

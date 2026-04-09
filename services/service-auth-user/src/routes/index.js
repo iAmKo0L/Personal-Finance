@@ -16,6 +16,9 @@ router.put('/api/auth/settings', requireAuth, authController.updateSettings);
 // Main contract endpoints requested by assignment.
 router.use('/auth', authRoutes);
 router.use('/users', userRoutes);
+// Root aliases to support direct proxy pass-through (/api/auth/register -> /register).
+router.use('/', authRoutes);
+router.use('/', userRoutes);
 
 // Backward-compatible aliases for existing gateway mapping.
 // Mount /api/auth/users before /api/auth so paths like /api/auth/users/me resolve.

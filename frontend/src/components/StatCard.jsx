@@ -1,6 +1,6 @@
 ﻿import { formatCurrency } from '../utils/format';
 
-export default function StatCard({ title, value, currency = 'USD', tone = 'primary' }) {
+export default function StatCard({ title, value, currency = 'VND', tone = 'primary' }) {
   const formatted = typeof value === 'number' ? formatCurrency(value, currency) : value;
   return (
     <div className={`card stat-card tone-${tone}`}>

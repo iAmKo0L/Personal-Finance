@@ -18,12 +18,25 @@ async function ensureSchema() {
     await conn.query(`
       CREATE TABLE IF NOT EXISTS user_settings (
         user_id BIGINT UNSIGNED NOT NULL,
-        default_currency VARCHAR(10) NOT NULL DEFAULT 'USD',
-        monthly_spending_limit DECIMAL(14, 2) NOT NULL DEFAULT 0,
+        default_currency VARCHAR(10) NOT NULL DEFAULT 'VND',
         PRIMARY KEY (user_id),
         CONSTRAINT fk_user_settings_user FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE
       ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
     `);
+    await conn.query(
+      'ALTER TABLE user_settings ALTER COLUMN default_currency SET DEFAULT \'VND\''
+    );
+    const [columnRows] = await conn.query(
+      `SELECT 1
+       FROM information_schema.COLUMNS
+       WHERE TABLE_SCHEMA = DATABASE()
+         AND TABLE_NAME = 'user_settings'
+         AND COLUMN_NAME = 'monthly_spending_limit'
+       LIMIT 1`
+    );
+    if (columnRows.length > 0) {
+      await conn.query('ALTER TABLE user_settings DROP COLUMN monthly_spending_limit');
+    }
   } finally {
     conn.release();
   }

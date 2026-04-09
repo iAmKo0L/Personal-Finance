@@ -16,8 +16,7 @@ const updateMeSchema = Joi.object({
 });
 
 const updateSettingsSchema = Joi.object({
-  defaultCurrency: Joi.string().trim().min(2).max(10).required(),
-  monthlySpendingLimit: Joi.number().min(0).required()
+  defaultCurrency: Joi.string().trim().min(2).max(10).required()
 });
 
 module.exports = {

@@ -4,9 +4,10 @@ import BudgetProgress from './BudgetProgress';
 export default function BudgetCard({
   budget,
   spentAmount = 0,
-  currency = 'USD',
+  currency = 'VND',
   categoryName = 'Total budget',
-  onEdit
+  onEdit,
+  onDelete
 }) {
   const usagePercent = budget.limitAmount ? (spentAmount / budget.limitAmount) * 100 : 0;
   const status = usagePercent >= 100 ? 'exceeded' : usagePercent >= budget.alertThreshold ? 'warning' : 'normal';
@@ -18,7 +19,18 @@ export default function BudgetCard({
     <div className="card budget-card">
       <div className="row-between">
         <h4>{categoryName}</h4>
-        <button className="link" onClick={() => onEdit(budget)}>Edit</button>
+        <div className="row gap-8">
+          {onEdit && (
+            <button className="link" onClick={() => onEdit(budget)}>
+              Edit
+            </button>
+          )}
+          {onDelete && (
+            <button className="link danger" onClick={() => onDelete(budget)}>
+              Delete
+            </button>
+          )}
+        </div>
       </div>
       <p className="muted">{budget.month}</p>
       <div className="budget-metrics">

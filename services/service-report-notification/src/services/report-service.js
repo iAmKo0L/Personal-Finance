@@ -63,8 +63,40 @@ async function getCashflow(accessToken, month) {
   };
 }
 
+async function getBudgetAlerts(accessToken, month) {
+  const financeClient = getFinanceClient();
+  const alerts = await financeClient.fetchBudgetAlerts(accessToken, month);
+
+  const exceeded = alerts.filter((a) => a.status === 'exceeded');
+  const near = alerts.filter((a) => a.status === 'near_limit');
+
+  const items = [];
+  if (exceeded.length > 0) {
+    items.push({
+      type: 'critical',
+      message: `Bạn đã vượt ngân sách (${exceeded.length} mục).`
+    });
+  }
+  if (near.length > 0) {
+    items.push({
+      type: 'warning',
+      message: `Bạn sắp vượt ngân sách (${near.length} mục).`
+    });
+  }
+  if (items.length === 0) {
+    items.push({ type: 'safe', message: 'Ngân sách đang trong mức an toàn.' });
+  }
+
+  return {
+    month,
+    data: items,
+    raw: alerts
+  };
+}
+
 module.exports = {
   getMonthlySummary,
   getCategoryBreakdown,
-  getCashflow
+  getCashflow,
+  getBudgetAlerts
 };

@@ -3,7 +3,7 @@ info:
   title: service-auth-user API
   version: 1.0.0
 servers:
-  - url: http://localhost:5001
+  - url: http://localhost:15001
 paths:
   /health:
     get:
@@ -76,10 +76,9 @@ paths:
           application/json:
             schema:
               type: object
-              required: [defaultCurrency, monthlySpendingLimit]
+              required: [defaultCurrency]
               properties:
                 defaultCurrency: { type: string }
-                monthlySpendingLimit: { type: number }
       responses:
         '200': { description: Success }
         '401': { description: Unauthorized }

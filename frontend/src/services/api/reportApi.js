@@ -22,5 +22,12 @@ export const reportApi = {
       ['/api/reports/notifications/check-budget-alerts', '/api/reports/check-budget-alerts'],
       { method: 'POST', params: { month }, token }
     );
+  },
+
+  getBudgetAlerts(month, token) {
+    return requestWithFallback(
+      ['/api/reports/notifications/budget-alerts', '/api/reports/budget-alerts'],
+      { params: { month }, token }
+    );
   }
 };

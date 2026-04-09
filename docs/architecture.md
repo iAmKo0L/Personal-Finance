@@ -8,9 +8,9 @@ Hệ thống theo luồng:
 graph LR
     U[User] --> FE[Frontend :3000]
     FE --> GW[API Gateway :8080]
-    GW --> AU[service-auth-user :5000]
-    GW --> TB[service-transaction-budget :5000]
-    GW --> RN[service-report-notification :5000]
+    GW --> AU[service-auth-user (container :5000, host :15001)]
+    GW --> TB[service-transaction-budget (container :5000, host :15002)]
+    GW --> RN[service-report-notification (container :5000, host :15003)]
 ```
 
 - Frontend chỉ gọi gateway, không gọi trực tiếp từng service.
@@ -27,9 +27,8 @@ graph LR
   - Tính tổng thu, tổng chi, số dư
   - Cung cấp endpoint nội bộ cho report service
 - **service-report-notification**
-  - Tổng hợp dữ liệu báo cáo dashboard
-  - Tính category breakdown, cashflow
-  - Sinh và trả notification cảnh báo ngân sách
+  - Trả cảnh báo ngân sách (budget alerts) cho tháng được chọn
+  - Lấy dữ liệu từ `service-transaction-budget` qua các endpoint nội bộ (internal)
 
 ## 3. Giao tiếp giữa các service
 - Gateway -> auth-user: `/api/auth/*`
@@ -47,10 +46,13 @@ graph LR
 - Dễ thay đổi/mở rộng backend mà frontend ít bị ảnh hưởng.
 
 ## 5. Vì sao chọn Database per Service
-Dù project hiện tại dùng in-memory để demo, thiết kế vẫn theo hướng **DB per Service**:
+Dự án triển khai với **MySQL thật** và vẫn theo hướng **DB per Service**:
 - Mỗi service sở hữu dữ liệu và logic riêng.
 - Giảm phụ thuộc trực tiếp giữa các service.
 - Dễ scale/đổi công nghệ DB cho từng service sau này.
+
+Trong demo hiện tại, cả 3 service dùng chung 1 container MySQL nhưng tách schema/database riêng theo tên:
+`auth_user_db`, `finance_db`, `report_db`.
 
 ## 6. Triển khai
 - Đóng gói bằng Docker

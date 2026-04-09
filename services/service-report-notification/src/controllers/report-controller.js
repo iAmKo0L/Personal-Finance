@@ -47,6 +47,16 @@ async function cashflow(req, res, next) {
   }
 }
 
+async function budgetAlerts(req, res, next) {
+  try {
+    const month = validateMonth(req.query);
+    const result = await reportService.getBudgetAlerts(req.accessToken, month);
+    res.json(result);
+  } catch (error) {
+    next(error);
+  }
+}
+
 async function notifications(req, res, next) {
   try {
     const result = await notificationService.listNotifications(req.user.sub);
@@ -71,5 +81,6 @@ module.exports = {
   categoryBreakdown,
   cashflow,
   notifications,
-  checkBudgetAlerts
+  checkBudgetAlerts,
+  budgetAlerts
 };
