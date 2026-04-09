@@ -3,7 +3,7 @@
 ## 1. Mô tả bài toán
 Đề tài xây dựng hệ thống quản lý tài chính cá nhân theo kiến trúc microservice.
 
-Để tối ưu cho demo và đúng scope đồ án, dự án tập trung vào **một use case chính**:
+Nhóm tập trung vào **một use case chính**:
 **“Ghi nhận transaction mới và hiển thị tác động của nó lên danh sách giao dịch, thống kê và ngân sách.”**
 
 Người dùng có thể:
@@ -44,5 +44,3 @@ Người dùng có thể:
 - **service-auth-user**: tách riêng authentication/user profile để tăng bảo mật và khả năng tái sử dụng.
 - **service-transaction-budget**: service lõi, tập trung nghiệp vụ giao dịch và ngân sách, thuận lợi mở rộng DB độc lập.
 - **service-report-notification**: đọc/phân tích dữ liệu và cảnh báo, có thể scale độc lập khi frontend cần nhiều báo cáo.
-
-Cách chia này giúp code rõ ràng, dễ demo và phù hợp mô hình môn học microservice.
