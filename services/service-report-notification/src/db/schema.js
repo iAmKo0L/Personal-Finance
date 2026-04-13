@@ -17,7 +17,7 @@ async function ensureSchema() {
         KEY idx_notifications_user (user_id)
       ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
     `);
-    // Older installs used JSON type; mysql2 + JSON could error on some payloads. Migrate to TEXT.
+
     try {
       await conn.query(
         'ALTER TABLE notifications MODIFY COLUMN metadata TEXT NULL'
