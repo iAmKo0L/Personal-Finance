@@ -127,13 +127,19 @@ sequenceDiagram
     U->>GW: POST /transactions
     GW->>TB: Chuyển request kèm JWT
     TB->>AUTH: (tùy chọn xác thực token / auth middleware)
-    TB->>DB: Tạo giao dịch, cập nhật trạng thái ngân sách
-    TB-->>GW: Trả transaction mới + summary cập nhật
+    TB->>DB: Tạo giao dịch
+    DB-->>TB: Transaction đã lưu
+    TB->>DB: Đọc giao dịch tháng hiện tại
+    DB-->>TB: Trả danh sách giao dịch
+    TB->>DB: Đọc cấu hình ngân sách tháng
+    DB-->>TB: Trả dữ liệu ngân sách
+    TB-->>GW: Trả transaction mới + summary cập nhật + budget status + alerts
     GW-->>U: Response
 
     U->>GW: GET /budgets/current?month=2025-09
     GW->>TB: Chuyển request
-    TB->>DB: Đọc ngân sách + giao dịch
+    TB->>DB: Đọc ngân sách + giao dịch tháng
+    DB-->>TB: Trả dữ liệu ngân sách và giao dịch
     TB-->>GW: Trả trạng thái ngân sách
     GW-->>U: Response
 

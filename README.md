@@ -1,199 +1,248 @@
-﻿# Quản Lý Tài Chính Cá Nhân - Phát triển phần mềm hướng dịch vụ
+﻿# 🧩 Microservices Assignment Starter Template
 
-Hệ thống quản lý tài chính cá nhân được xây dựng theo kiến trúc microservice.  
-Use case phát triển: Ghi nhận giao dịch tài chính mới và xử lý báo cáo thống kê.
+Kho chứa này là một **template khởi tạo** cho việc xây dựng hệ thống microservices. Hãy dùng làm nền tảng cho bài tập nhóm của bạn.
 
-## Thành viên nhóm
-| Họ tên | MSSV | Vai trò |
-|---|---|---|
-| Đỗ Đức Cảnh | B22DCCN086 | Service transaction budget / analysis & design |
-| Trần Quang Huy | B22DCCN397 | Service report notification / Gateway |
-| Trần Quang Huy | B22DCCN398 | Service auth user / Frontend |
+> **Không phụ thuộc công nghệ**: Bạn được tự do chọn ngôn ngữ lập trình, framework hoặc cơ sở dữ liệu cho từng service.
 
-## Cấu trúc thư mục
+---
+
+## 👥 Thành viên nhóm
+
+| Tên | Mã sinh viên | Vai trò | Đóng góp |
+|------|------------|------|-------------|
+| Đỗ Đức Cảnh | B22DCCN086 | Trưởng nhóm | Service transaction-budget, phân tích & thiết kế |
+| Trần Quang Huy | B22DCCN397 | Thành viên | Service report-notification, gateway |
+| Trần Quang Huy | B22DCCN398 | Thành viên | Service auth-user, frontend |
+
+---
+
+## 📁 Cấu trúc dự án
+
 ```text
-gateway/                         # API Gateway
-services/
-  service-auth-user/             # Xác thực + hồ sơ/cài đặt người dùng
-  service-transaction-budget/    # Giao dịch, danh mục, ngân sách
-  service-report-notification/   # Báo cáo + thông báo
-frontend/                        # Giao diện người dùng
-docs/                            # Phân tích thiết kế, kiến trúc, OpenAPI
-docker-compose.yml
+BTL HDV/
+├── README.md                       # File này — tổng quan dự án
+├── .env.example                    # Mẫu biến môi trường
+├── docker-compose.yml              # Orchestration đa container
+├── Makefile                        # Các lệnh phát triển chung
+│
+├── docs/                           # 📖 Tài liệu
+│   ├── analysis-and-design.md      # Phân tích hệ thống & thiết kế dịch vụ
+│   ├── architecture.md             # Kiến trúc hệ thống & sơ đồ
+│   ├── asset/                      
+│   └── api-specs/                  # Đặc tả OpenAPI 3.0
+│       ├── auth-user.yaml
+│       ├── transaction-budget.yaml
+│       └── report-notification.yaml
+│
+├── frontend/                       # 🖥️ Ứng dụng frontend
+│   ├── Dockerfile
+│   ├── readme.md
+│   └── src/
+│
+├── gateway/                        # 🚪 API Gateway / reverse proxy
+│   ├── Dockerfile
+│   ├── readme.md
+│   └── src/
+│
+├── services/                       # ⚙️ Các microservice backend
+│   ├── service-auth-user/
+│   │   ├── Dockerfile
+│   │   ├── readme.md
+│   │   └── src/
+│   ├── service-transaction-budget/
+│   │   ├── Dockerfile
+│   │   ├── readme.md
+│   │   └── src/
+│   └── service-report-notification/
+│       ├── Dockerfile
+│       ├── readme.md
+│       └── src/
+│
+├── scripts/                        # 🔧 Script tiện ích
+│   └── init.sh
+│
+├── .github/copilot-instructions.md # Hướng dẫn GitHub Copilot
+├── CLAUDE.md                       # Hướng dẫn Claude Code
+└── docker/                         # Docker helper và script khởi tạo DB
+    └── mysql/
+        └── init.sql
 ```
 
-## Danh sách service
-- `mysql` (host thường forward `3306` -> `3306` trong container; đổi bằng `MYSQL_PUBLISH_PORT` trong `.env`)
-- `gateway` (port host mặc định: `8080`)
-- `service-auth-user` (host: `15001`, container: `5000`)
-- `service-transaction-budget` (host: `15002`, container: `5000`)
-- `service-report-notification` (host: `15003`, container: `5000`)
-- `frontend` (host: `3000`)
+---
 
-## Endpoint chính (qua Gateway)
-- Auth/User:
-  - `POST /api/auth/register`
-  - `POST /api/auth/login`
-- User:
-  - `GET /api/users/me`
-  - `PUT /api/users/me`
-  - `PUT /api/users/settings`
-- Finance (use case chính):
-  - `POST /api/finance/transactions`
-  - `GET /api/finance/transactions?month=YYYY-MM`
-  - `GET /api/finance/transactions/summary?month=YYYY-MM`
-  - `GET /api/finance/transactions/chart?month=YYYY-MM`
-  - `GET /api/finance/budgets/current?month=YYYY-MM`
-  - `GET /api/finance/budgets`
-  - `POST /api/finance/budgets`
-  - `PUT /api/finance/budgets/:id`
-  - `DELETE /api/finance/budgets/:id`
-- Reports/Notifications:
-  - `GET /api/reports/notifications/budget-alerts?month=YYYY-MM`
+## 🚀 Bắt đầu nhanh
 
-## Hướng dẫn chạy chi tiết
+### Yêu cầu trước
 
-### 1) Yêu cầu môi trường
-- Cài `Docker Desktop` (Windows/macOS) hoặc `Docker Engine + Docker Compose` (Linux)
-- Docker daemon đang chạy trước khi chạy lệnh
+- [Docker Desktop](https://docs.docker.com/get-docker/) (Windows/macOS) hoặc Docker Engine + Docker Compose (Linux)
+- [Git](https://git-scm.com/)
 
-Kiểm tra nhanh:
+Kiểm tra phiên bản:
+
 ```bash
 docker --version
 docker compose version
 ```
 
-### 2) Tạo file cấu hình `.env`
-Copy file mẫu:
+### Khởi tạo nhanh
+
 ```bash
+# 1. Clone repository
+git clone <your-repo-url>
+cd "mid-project-397398086"
+
+# 2. Khởi tạo dự án
 cp .env.example .env
-```
+# Hoặc trên PowerShell:
+# Copy-Item .env.example .env
 
-Nếu dùng PowerShell:
-```powershell
-Copy-Item .env.example .env
-```
-
-Giá trị quan trọng trong `.env`:
-- Port host:
-  - `FRONTEND_PORT=3000`
-  - `GATEWAY_PORT=8080`
-  - `SERVICE_AUTH_USER_PORT=15001`
-  - `SERVICE_TRANSACTION_BUDGET_PORT=15002`
-  - `SERVICE_REPORT_NOTIFICATION_PORT=15003`
-- MySQL:
-  - `MYSQL_APP_USER=finance_user`
-  - `MYSQL_APP_PASSWORD=finance_password`
-  - `MYSQL_ROOT_PASSWORD=root_password`
-  - `MYSQL_PUBLISH_PORT=3306`
-- JWT:
-  - `JWT_SECRET=your-jwt-secret`
-  - `JWT_EXPIRES_IN=1d`
-
-> Lưu ý: không dùng `DB_USER` trong `.env` root cho Docker Compose.  
-> Project dùng `MYSQL_APP_USER` để tránh xung đột biến môi trường hệ thống trên Windows.
-
-### 3) Build và chạy toàn bộ hệ thống
-```bash
+# 3. Build và chạy toàn bộ dịch vụ
 docker compose up --build
+
+# 4. Kiểm tra dịch vụ đang chạy
+curl http://localhost:8080/health   # Gateway
+curl http://localhost:15001/health # service-auth-user
+curl http://localhost:15002/health # service-transaction-budget
+curl http://localhost:15003/health # service-report-notification
 ```
 
-Chạy nền (background):
+### Dùng Make (tùy chọn)
+
 ```bash
-docker compose up --build -d
+make help      # Hiển thị các lệnh có sẵn
+make init      # Khởi tạo dự án
+make up        # Build và khởi động tất cả dịch vụ
+make down      # Dừng tất cả dịch vụ
+make logs      # Xem logs
+make clean     # Xóa dữ liệu tạm
 ```
 
-### 4) Truy cập ứng dụng
-- Frontend: `http://localhost:3000`
-- API Gateway: `http://localhost:8080`
-- Gateway health: `http://localhost:8080/health`
+---
 
-Health check từng backend (nếu cần):
-```bash
-curl http://localhost:15001/health
-curl http://localhost:15002/health
-curl http://localhost:15003/health
+## 🧩 Port các service
+
+- `gateway`: `8080`
+- `service-auth-user`: `15001`
+- `service-transaction-budget`: `15002`
+- `service-report-notification`: `15003`
+- `frontend`: `3000`
+
+---
+
+## 📋 Các endpoint chính
+
+### Auth/User
+- `POST /api/auth/register`
+- `POST /api/auth/login`
+- `GET /api/users/me`
+- `PUT /api/users/me`
+- `PUT /api/users/settings`
+
+### Finance
+- `POST /api/finance/transactions`
+- `GET /api/finance/transactions?month=YYYY-MM`
+- `GET /api/finance/transactions/summary?month=YYYY-MM`
+- `GET /api/finance/transactions/chart?month=YYYY-MM`
+- `GET /api/finance/budgets/current?month=YYYY-MM`
+- `GET /api/finance/budgets`
+- `POST /api/finance/budgets`
+- `PUT /api/finance/budgets/:id`
+- `DELETE /api/finance/budgets/:id`
+
+### Reports & Notifications
+- `GET /api/reports/notifications/budget-alerts?month=YYYY-MM`
+
+---
+
+## 🏗️ Kiến trúc hệ thống
+
+```mermaid
+graph LR
+    U[Người dùng] --> FE[Frontend :3000]
+    FE --> GW[API Gateway :8080]
+    GW --> AUTH[service-auth-user :15001]
+    GW --> TB[service-transaction-budget :15002]
+    GW --> RN[service-report-notification :15003]
+    AUTH --> DB1[(auth_user_db)]
+    TB --> DB2[(finance_db)]
+    RN --> DB3[(report_db)]
 ```
 
-### 5) Đăng ký / đăng nhập
-- Mở UI: `http://localhost:3000/register` để tạo tài khoản
-- Đăng nhập tại `http://localhost:3000/login`
-- Sau khi đăng nhập, bạn sẽ vào **một màn hình duy nhất** để ghi nhận giao dịch và xem tác động lên thống kê/ngân sách.
+- **Frontend** → Giao diện người dùng, chỉ giao tiếp với Gateway
+- **Gateway** → Điều hướng yêu cầu đến các backend service phù hợp
+- **Services** → Các microservice độc lập, mỗi service chịu trách nhiệm riêng
+- **Communication** → REST API qua mạng Docker Compose
 
-### 6) Lệnh quản lý thường dùng
-Dừng hệ thống:
-```bash
-docker compose down
-```
+> 📖 Tài liệu kiến trúc chi tiết: [`docs/architecture.md`](docs/architecture.md)
 
-Xem logs:
-```bash
-docker compose logs -f
-```
+---
 
-Rebuild riêng 1 service:
-```bash
-docker compose build gateway --no-cache
-docker compose up -d gateway
-```
+## 🤖 Phát triển với AI
 
-### 7) Xử lý lỗi thường gặp
-- `port is already allocated`:
-  - Đổi port trong `.env` (ví dụ `SERVICE_AUTH_USER_PORT=16001`)
-  - Hoặc dừng process/container đang chiếm port
-- MySQL lỗi `MYSQL_USER="root"`:
-  - Dùng `MYSQL_APP_USER` khác `root`
-- Frontend báo `Failed to fetch`:
-  - Kiểm tra `gateway` đang chạy (`/health`)
-  - Kiểm tra `frontend/.env` (nếu có) đặt `VITE_API_BASE_URL=http://localhost:8080`
-- Đã đổi schema/init DB mà vẫn lỗi:
-  - Cần reset volume DB (sẽ mất dữ liệu):
-    ```bash
-    docker compose down -v
-    docker compose up --build
-    ```
+Kho này có các file hướng dẫn AI để hỗ trợ phát triển.
 
-## MySQL
-- `docker-compose.yml` có service `mysql:8`, volume `mysql-data`, và script khởi tạo `docker/mysql/init.sql`.
-- Mỗi backend service dùng `mysql2`, pool kết nối và `ensureSchema()` (CREATE TABLE IF NOT EXISTS) khi khởi động.
-- Ba database logic trên cùng một instance:
-  - `auth_user_db` — `service-auth-user`
-  - `finance_db` — `service-transaction-budget`
-  - `report_db` — `service-report-notification` (bảng `notifications`)
+| Công cụ | File cấu hình |
+|------|-------------|
+| GitHub Copilot | `.github/copilot-instructions.md` |
+| Claude Code | `CLAUDE.md` |
 
-### Biến `.env` (copy từ `.env.example`)
-```env
-FRONTEND_PORT=3000
-GATEWAY_PORT=8080
-SERVICE_AUTH_USER_PORT=15001
-SERVICE_TRANSACTION_BUDGET_PORT=15002
-SERVICE_REPORT_NOTIFICATION_PORT=15003
+---
 
-MYSQL_APP_USER=finance_user
-MYSQL_APP_PASSWORD=finance_password
-MYSQL_ROOT_PASSWORD=root_password
-DB_HOST=mysql
-DB_PORT=3306
-MYSQL_PUBLISH_PORT=3306
-AUTH_DB_NAME=auth_user_db
-FINANCE_DB_NAME=finance_db
-REPORT_DB_NAME=report_db
+## 📋 Quy trình đề xuất
 
-JWT_SECRET=your-jwt-secret
-JWT_EXPIRES_IN=1d
-```
+### Giai đoạn 1: Phân tích & Thiết kế
+- [ ] Đọc và hiểu template dự án
+- [ ] Chọn domain và use case
+- [ ] Document phân tích trong [`docs/analysis-and-design.md`](docs/analysis-and-design.md)
+- [ ] Thiết kế kiến trúc trong [`docs/architecture.md`](docs/architecture.md)
 
-### Chạy
-```bash
-docker compose up --build
-```
-Dữ liệu được lưu trong volume `mysql-data`; restart container không mất dữ liệu (trừ khi xóa volume).
+### Giai đoạn 2: Thiết kế API
+- [ ] Định nghĩa API bằng OpenAPI 3.0 trong `docs/api-specs/`
+- [ ] Bao gồm tất cả endpoint, request/response schema
+- [ ] Review thiết kế API với nhóm
 
-## Tài liệu
-- Phân tích thiết kế: `docs/analysis-and-design.md`
-- Kiến trúc hệ thống: `docs/architecture.md`
-- Frontend guide: `frontend/readme.md`
-- OpenAPI:
-  - `docs/api-specs/auth-user.yaml`
-  - `docs/api-specs/transaction-budget.yaml`
-  - `docs/api-specs/report-notification.yaml`
+### Giai đoạn 3: Triển khai
+- [ ] Chọn stack cho mỗi service
+- [ ] Cập nhật Dockerfile cho từng service
+- [ ] Triển khai endpoint `GET /health` cho mỗi service
+- [ ] Implement business logic và API endpoints
+- [ ] Cấu hình routing trong API Gateway
+- [ ] Xây dựng UI frontend
+
+### Giai đoạn 4: Kiểm thử & Tài liệu
+- [ ] Viết unit và integration tests
+- [ ] Kiểm tra `docker compose up --build` chạy được toàn bộ
+- [ ] Cập nhật `readme.md` của từng service
+- [ ] Cập nhật `README.md` này với thông tin dự án
+
+---
+
+## 🧪 Hướng dẫn phát triển
+
+- **Health checks**: Mỗi service PHẢI expose `GET /health` → `{"status": "ok"}`
+- **Môi trường**: Dùng `.env` để cấu hình; không hardcode secrets
+- **Mạng**: Dùng tên service Docker Compose trong container, không dùng `localhost`
+- **API specs**: Giữ `OpenAPI` đồng bộ với code
+- **Git workflow**: Dùng branch, commit có ý nghĩa và commit thường xuyên
+
+---
+
+## 👩‍🏫 Kiểm tra nộp bài
+
+- [ ] `README.md` đã cập nhật thông tin nhóm, mô tả service và hướng dẫn sử dụng
+- [ ] Tất cả service khởi động được với `docker compose up --build`
+- [ ] Mỗi service có endpoint `GET /health` hoạt động
+- [ ] Tài liệu API đầy đủ trong `docs/api-specs/`
+- [ ] Kiến trúc ghi lại trong `docs/architecture.md`
+- [ ] Phân tích và thiết kế ghi lại trong `docs/analysis-and-design.md`
+- [ ] Mỗi service có `readme.md` riêng
+- [ ] Code rõ ràng, tổ chức tốt và tuân theo quy ước đã chọn
+- [ ] Có tests và tests chạy được
+
+---
+
+## Tác giả
+
+Dựa trên template khởi tạo bởi **Hung Dang**.
+
+Chúc bạn may mắn! 💪🚀

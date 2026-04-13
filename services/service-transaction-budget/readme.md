@@ -1,201 +1,97 @@
 ﻿# service-transaction-budget
 
-Service quản lý giao dịch, danh mục và ngân sách.
+## Tổng quan
 
-## Chạy độc lập
+Service này quản lý giao dịch, danh mục và ngân sách cho tài chính cá nhân.
+
+- Lĩnh vực kinh doanh: Quản lý tài chính cá nhân
+- Dữ liệu sở hữu: Giao dịch, danh mục, ngân sách
+- Hoạt động: Các hoạt động CRUD trên giao dịch, danh mục và ngân sách; tóm tắt và phân tích
+
+## Ngăn xếp công nghệ
+
+| Thành phần | Lựa chọn          |
+|------------|-------------------|
+| Ngôn ngữ   | Node.js           |
+| Khung      | Express           |
+| Cơ sở dữ liệu | MySQL             |
+
+## Điểm cuối API
+
+| Phương thức | Điểm cuối                 | Mô tả                   |
+|-------------|---------------------------|-------------------------|
+| GET         | /health                   | Kiểm tra sức khỏe       |
+| GET         | /categories               | Liệt kê danh mục        |
+| POST        | /categories               | Tạo danh mục            |
+| GET         | /transactions             | Liệt kê giao dịch       |
+| POST        | /transactions             | Tạo giao dịch           |
+| GET         | /transactions/:id         | Lấy giao dịch theo ID   |
+| PUT         | /transactions/:id         | Cập nhật giao dịch      |
+| DELETE      | /transactions/:id         | Xóa giao dịch           |
+| GET         | /transactions/summary     | Tóm tắt hàng tháng      |
+| GET         | /transactions/chart       | Dữ liệu biểu đồ         |
+| GET         | /budgets                  | Liệt kê ngân sách       |
+| POST        | /budgets                  | Tạo ngân sách           |
+| GET         | /budgets/current          | Trạng thái ngân sách hiện tại |
+| PUT         | /budgets/:id              | Cập nhật ngân sách      |
+| DELETE      | /budgets/:id              | Xóa ngân sách           |
+| GET         | /internal/summary         | Tóm tắt nội bộ cho báo cáo |
+| GET         | /internal/category-breakdown | Phân tích danh mục     |
+| GET         | /internal/analytics/monthly | Phân tích hàng tháng   |
+| GET         | /internal/alerts          | Cảnh báo ngân sách      |
+
+> Thông số API đầy đủ: [`docs/api-specs/transaction-budget.yaml`](../../docs/api-specs/transaction-budget.yaml)
+
+## Chạy cục bộ
+
 ```bash
+# Từ thư mục gốc dự án
+docker compose up service-transaction-budget --build
+
+# Hoặc chạy độc lập
 cd services/service-transaction-budget
 npm install
 npm start
 ```
 
-## Xác thực
-Tất cả endpoint (trừ `/health`) cần header:
-`Authorization: Bearer <jwt>`
+## Cấu trúc dự án
 
-## Ví dụ API
-
-### Health check
-- `GET /health`
-Phản hồi:
-```json
-{ "status": "ok" }
+```
+service-transaction-budget/
+├── Dockerfile
+├── package.json
+├── readme.md
+└── src/
+    ├── app.js
+    ├── server.js
+    ├── config/
+    ├── controllers/
+    ├── db/
+    ├── middleware/
+    ├── models/
+    ├── repositories/
+    ├── routes/
+    ├── services/
+    ├── utils/
+    └── validations/
 ```
 
-### Tạo danh mục
-- `POST /categories`
-Yêu cầu:
-```json
-{ "name": "Freelance", "type": "income" }
-```
-Phản hồi 201:
-```json
-{ "id": "6", "userId": "1", "systemDefault": false, "name": "Freelance", "type": "income" }
-```
+## Biến môi trường
 
-### Danh sách danh mục
-- `GET /categories`
-Phản hồi 200: mảng categories (gồm danh mục mặc định + danh mục do user tạo).
+| Biến         | Mô tả               | Mặc định             |
+|--------------|---------------------|----------------------|
+| PORT         | Cổng dịch vụ        | 5000                 |
+| JWT_SECRET   | Khóa bí mật JWT     | dev-secret-change-me |
+| DB_HOST      | Tên máy chủ cơ sở dữ liệu | localhost        |
+| DB_PORT      | Cổng cơ sở dữ liệu  | 3306                 |
+| DB_USER      | Người dùng cơ sở dữ liệu | finance_user     |
+| DB_PASSWORD  | Mật khẩu cơ sở dữ liệu | (trống)            |
+| DB_NAME      | Tên cơ sở dữ liệu   | finance_db           |
 
-### Tạo giao dịch
-- `POST /transactions`
-Yêu cầu:
-```json
-{
-  "type": "expense",
-  "amount": 120000,
-  "categoryId": "3",
-  "note": "Lunch",
-  "transactionDate": "2025-09-05T09:00:00.000Z"
-}
-```
-Phản hồi 201: gói dữ liệu để frontend cập nhật nhanh (transaction + summary + budgetStatus + alerts).
+## Kiểm thử
 
-### Thống kê theo tháng (use case)
-- `GET /transactions/summary?month=YYYY-MM`
+Chưa cấu hình kiểm thử.
 
-### Dữ liệu biểu đồ theo tháng (use case)
-- `GET /transactions/chart?month=YYYY-MM`
-
-### Lấy danh sách giao dịch có lọc
-- `GET /transactions?month=2025-09&type=expense&categoryId=3`
-Phản hồi 200:
-```json
-{
-  "filters": { "month": "2025-09", "type": "expense", "categoryId": "3" },
-  "totals": { "totalIncome": 0, "totalExpense": 120000, "balance": -120000 },
-  "data": []
-}
-```
-
-### Lấy giao dịch theo id
-- `GET /transactions/:id`
-Phản hồi 200:
-```json
-{
-  "id": "1",
-  "userId": "1",
-  "type": "expense",
-  "amount": 120000,
-  "categoryId": "3",
-  "note": "Lunch",
-  "transactionDate": "2025-09-05T09:00:00.000Z",
-  "createdAt": "2025-09-05T09:00:01.000Z",
-  "updatedAt": "2025-09-05T09:00:01.000Z"
-}
-```
-
-### Cập nhật giao dịch
-- `PUT /transactions/:id`
-Yêu cầu:
-```json
-{
-  "type": "expense",
-  "amount": 150000,
-  "categoryId": "3",
-  "note": "Lunch and coffee",
-  "transactionDate": "2025-09-05T09:00:00.000Z"
-}
-```
-Phản hồi 200: đối tượng transaction sau cập nhật.
-
-### Xóa giao dịch
-- `DELETE /transactions/:id`
-Phản hồi 204: không có nội dung.
-
-### Tạo ngân sách
-- `POST /budgets`
-Yêu cầu:
-```json
-{
-  "month": "2025-09",
-  "categoryId": null,
-  "limitAmount": 10000000,
-  "alertThreshold": 80
-}
-```
-
-### Lấy danh sách ngân sách
-- `GET /budgets`
-Phản hồi 200: mảng ngân sách.
-
-### Lấy ngân sách theo tháng hiện tại
-- `GET /budgets/current?month=2025-09`
-Phản hồi 200: trả về budget status (monthlyBudget, spentAmount, usagePercent, remainingAmount).
-
-### Cập nhật ngân sách
-- `PUT /budgets/:id`
-Yêu cầu:
-```json
-{
-  "month": "2025-09",
-  "categoryId": null,
-  "limitAmount": 12000000,
-  "alertThreshold": 85
-}
-```
-Phản hồi 200: đối tượng budget sau cập nhật.
-
-### Xóa ngân sách
-- `DELETE /budgets/:id`
-Phản hồi 204: không có nội dung.
-
-### Endpoint nội bộ: summary cho report service
-- `GET /internal/summary?month=2025-09`
-
-### Endpoint nội bộ: category breakdown cho report service
-- `GET /internal/category-breakdown?month=2025-09`
-Phản hồi 200:
-```json
-{
-  "month": "2025-09",
-  "data": [
-    {
-      "categoryId": "3",
-      "categoryName": "Food",
-      "type": "expense",
-      "income": 0,
-      "expense": 120000
-    }
-  ]
-}
-```
-
-### Endpoint tương thích: analytics nội bộ
-- `GET /internal/analytics/monthly?month=2025-09`
-Phản hồi 200:
-```json
-{
-  "month": "2025-09",
-  "summary": { "month": "2025-09", "totalIncome": 0, "totalExpense": 120000, "balance": -120000 },
-  "categories": [
-    { "categoryId": "3", "categoryName": "Food", "type": "expense", "income": 0, "expense": 120000 }
-  ]
-}
-```
-
-### Endpoint tương thích: cảnh báo nội bộ
-- `GET /internal/alerts?month=2025-09`
-Phản hồi 200:
-```json
-[
-  {
-    "budgetId": "1",
-    "month": "2025-09",
-    "categoryId": null,
-    "limitAmount": 10000000,
-    "alertThreshold": 80,
-    "spentAmount": 120000,
-    "spentRatio": 1.2,
-    "status": "safe"
-  }
-]
-```
-
-## Định dạng lỗi
-```json
-{
-  "message": "Error message",
-  "details": null
-}
+```bash
+# npm test (khi được thêm)
 ```
